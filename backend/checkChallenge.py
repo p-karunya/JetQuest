@@ -1,7 +1,7 @@
 from openai import OpenAI
 from pydantic import BaseModel, Field
 
-def check_img(reqs): 
+def check_img(reqs, url): 
     """
     Check if the image at the given path matches the prompt.
     """
@@ -23,7 +23,7 @@ def check_img(reqs):
                     {
                         "type": "image_url",
                         "image_url": {
-                            "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg",
+                            "url": f"{url}",
                         }
                     },
                 ],
