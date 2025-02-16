@@ -11,8 +11,7 @@ def check_img(reqs, url):
     # Define response schema
     class ConfirmationOfEvent(BaseModel):
         TaskComplete: bool = Field(
-            description="True if the task is remotely present in the image, False otherwise",
-            reasoning="Why the task is complete or not complete?",
+            description="True if the task is completed in the image, False otherwise",
         )
 
     # Validate inputs
@@ -30,7 +29,7 @@ def check_img(reqs, url):
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": f"Does this image somewhat meet the requirements of {reqs}?"},
+                        {"type": "text", "text": f"Does this image meet the requirements of {reqs}? think critically and look for details."},
                         {
                             "type": "image_url",
                             "image_url": {

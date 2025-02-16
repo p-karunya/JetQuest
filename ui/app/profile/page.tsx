@@ -9,7 +9,6 @@ import Header from '@/components/Header';
 const userProfile = {
   name: 'Sarah Johnson',
   avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-  location: 'Seattle, WA',
   joinDate: 'January 2024',
   totalPoints: 2500,
   rank: 'Explorer',
@@ -53,12 +52,6 @@ export default function ProfilePage() {
                   <Title order={2} className="mt-4 mb-1">
                     {userProfile.name}
                   </Title>
-                  <Group justify="center" gap={8}>
-                    <MapPin size={16} className="text-blue-600" />
-                    <Text size="sm" c="dimmed">
-                      {userProfile.location}
-                    </Text>
-                  </Group>
                   <Badge 
                     size="lg" 
                     radius="md" 
@@ -79,13 +72,6 @@ export default function ProfilePage() {
                       <Title order={3} className="text-blue-600">
                         {userProfile.completedChallenges}
                       </Title>
-                    </div>
-                    <div>
-                      <Text size="sm" c="dimmed" mb={2}>Member Since</Text>
-                      <Group justify="center" gap={4}>
-                        <Calendar size={16} className="text-blue-600" />
-                        <Text>{userProfile.joinDate}</Text>
-                      </Group>
                     </div>
                   </div>
                 </div>

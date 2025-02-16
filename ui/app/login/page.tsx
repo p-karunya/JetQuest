@@ -19,16 +19,21 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       const account = new Account(AppClient);
-      const session = await account.createEmailPasswordSession(
-      email, 
-      password
-      );
-      sessionStorage.setItem('session', JSON.stringify(session));
-      router.push('/dashboard');
+      // Authenticate user
+      const session = await account.createEmailPasswordSession(email, password);
+      // Get the authenticated user's object
+      const user = await account.get();
+      // Store the user object in sessionStorage
+      sessionStorage.setItem('user', JSON.stringify(user));
+      console.log('User object saved:', user);
     } catch (error) {
-      console.error('Failed to login:', error);
+      console.error('Failed to create session or get user:', error);
     }
   };
+
+  if (sessionStorage.getItem('user')) {
+    router.push('/dashboard');
+  }
   
 
   return (
