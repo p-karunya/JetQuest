@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TextInput, PasswordInput, Checkbox, Button, Paper, Title, Text, Container, Box } from '@mantine/core';
 import { motion } from 'framer-motion';
 import { MapIcon, Mail, Lock } from 'lucide-react';
@@ -9,34 +9,48 @@ import Link from 'next/link';
 import AppClient from '@/components/Apwr';
 import { Account } from 'appwrite';
 
+// Separate function to check sessionStorage safely
+function checkUserSession() {
+  if (typeof window !== 'undefined') {
+    const user = sessionStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
+  }
+  return null;
+}
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
 
+  // Check user session on component mount
+  useEffect(() => {
+    const user = checkUserSession();
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [router]);
+
+  // Handle login
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const account = new Account(AppClient);
       // Authenticate user
-      const session = await account.createEmailPasswordSession(email, password);
+      await account.createEmailPasswordSession(email, password);
       // Get the authenticated user's object
       const user = await account.get();
-      // Store the user object in sessionStorage
-      sessionStorage.setItem('user', JSON.stringify(user));
+      // Store the user object in sessionStorage (client-side only)
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('user', JSON.stringify(user));
+      }
       console.log('User object saved:', user);
-
       router.push('/dashboard');
     } catch (error) {
       console.error('Failed to create session or get user:', error);
     }
   };
-
-  if (sessionStorage.getItem('user')) {
-    router.push('/dashboard');
-  }
-  
 
   return (
     <Box className="min-h-screen w-full bg-gradient-to-br from-blue-600 to-blue-800 fixed inset-0 flex items-center justify-center">
