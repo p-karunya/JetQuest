@@ -28,6 +28,8 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { Functions, ID, Storage } from 'appwrite';
+import AppClient from './Apwr';
 
 // Updated to center on a more global view
 const WORLD_CENTER: [number, number] = [20, 0];
@@ -190,6 +192,7 @@ export default function Map({ onChallengeClick }: MapProps) {
     'pending' | 'loading' | 'accepted' | 'rejected'
   >('pending');
   const [mapKey] = useState(() => Math.random());
+  let imagefile: File;
   
   // Use refs to store timeouts
   const loadingTimeoutRef = useRef<NodeJS.Timeout>();
@@ -223,29 +226,35 @@ export default function Map({ onChallengeClick }: MapProps) {
   const getGoogleMapsUrl = (location: [number, number]) => {
     return `https://www.google.com/maps/dir/?api=1&destination=${location[0]},${location[1]}`;
   };
+  
 
-  const handleSubmit = () => {
+  const handleSubmit = async (task:string) => {
+    let fileUrl: string;
     setCompletionStatus('loading');
 
-    // Clear any existing timeouts
-    if (loadingTimeoutRef.current) {
-      clearTimeout(loadingTimeoutRef.current);
-    }
-    if (resetTimeoutRef.current) {
-      clearTimeout(resetTimeoutRef.current);
-    }
+    const storage = new Storage(AppClient);
 
-    // Set new timeouts using refs
-    loadingTimeoutRef.current = setTimeout(() => {
-      const isAccepted = Math.random() > 0.5;
-      setCompletionStatus(isAccepted ? 'accepted' : 'rejected');
+    const promise = storage.createFile(
+      '67b16780002e7db874e9',
+      ID.unique(),
+      imagefile,
+    );
 
-      resetTimeoutRef.current = setTimeout(() => {
-        setCompletionStatus('pending');
-        setShowCompletionForm(false);
-        setSelectedChallenge(null);
-      }, 3000);
-    }, 2000);
+    promise.then(
+      function (response) {
+      const fileId = response.$id;
+      fileUrl = storage.getFileView('67b16780002e7db874e9', fileId);
+      }
+    );
+
+    const functions = new Functions(AppClient);
+    const result = await functions.createExecution(
+      '67b14a61003985a90a52',
+      '', 
+      false, 
+      `\\?reqs=${task}`,
+    )
+    
   };
 
   const renderCompletionStatus = () => {
@@ -368,15 +377,18 @@ export default function Map({ onChallengeClick }: MapProps) {
                             ))}
                           </List>
                         </div>
-
                         <FileInput
                           label="Upload Photos"
                           placeholder="Choose photos"
                           accept="image/*"
                           icon={<Camera size={16} />}
                           required
-                          multiple
                           size="sm"
+                          onChange={(f) => {
+                          if (f) {
+                            imagefile = f;
+                          }
+                          }}
                         />
 
                         {challenge.category === 'food' && (
@@ -415,7 +427,7 @@ export default function Map({ onChallengeClick }: MapProps) {
                             Cancel
                           </Button>
                           <Button
-                            onClick={handleSubmit}
+                            onClick={() => handleSubmit(challenge.tasks.join(', '))}
                             size="sm"
                             style={{
                               backgroundColor: getCategoryColor(

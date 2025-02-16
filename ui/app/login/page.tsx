@@ -6,6 +6,8 @@ import { motion } from 'framer-motion';
 import { MapIcon, Mail, Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import AppClient from '@/components/Apwr';
+import { Account } from 'appwrite';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -13,10 +15,21 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    router.push('/dashboard');
+    try {
+      const account = new Account(AppClient);
+      const session = await account.createEmailPasswordSession(
+      email, 
+      password
+      );
+      sessionStorage.setItem('session', JSON.stringify(session));
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Failed to login:', error);
+    }
   };
+  
 
   return (
     <Box className="min-h-screen w-full bg-gradient-to-br from-blue-600 to-blue-800 fixed inset-0 flex items-center justify-center">

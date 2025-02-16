@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { TextInput, PasswordInput, Button, Paper, Title, Text, Container, Box } from '@mantine/core';
+import { TextInput, PasswordInput, Button, Paper, Title, Text, Container, Box, em } from '@mantine/core';
 import { motion } from 'framer-motion';
 import { MapIcon, Mail, Lock, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Account, ID } from 'appwrite';
+import AppClient from '@/components/Apwr';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -13,9 +15,34 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const router = useRouter();
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     router.push('/dashboard');
+    const account = new Account(AppClient);
+
+    const user = await account.create(
+      ID.unique(), 
+      email, 
+      password,
+    );
+
+    try{
+      account.deleteSession('current')
+    } catch {
+    
+    }
+
+    try {
+      const account = new Account(AppClient);
+      const session = await account.createEmailPasswordSession(
+      email, 
+      password
+      );
+      sessionStorage.setItem('session', JSON.stringify(session));
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Failed to login:', error);
+    }
   };
 
   return (
