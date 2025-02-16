@@ -179,7 +179,7 @@ export default function Home() {
                   size="xl"
                   rightSection={<ChevronRight size={24} className="text-white" />}
                   onClick={() => router.push('/login')}
-                  className="explore-button"
+                  className="explore-button text-white"
                 >
                   <span className="explore-text">Explore Now!</span>
                 </Button>
