@@ -1044,9 +1044,9 @@ export default function Map({ onChallengeClick }: MapProps) {
     (typeof challenges)[0] | null
   >(null);
   const [showCompletionForm, setShowCompletionForm] = useState(false);
-  let [completionStatus, setCompletionStatus] = useState<
-    'pending' | 'loading' | 'accepted' | 'rejected'
-  >('pending');
+  const [completionStatuses, setCompletionStatuses] = useState<Record<number, 'pending' | 'loading' | 'accepted' | 'rejected'>>({});
+
+
   const [mapCenter, setMapCenter] = useState<[number, number]>(WORLD_CENTER);
   const [mapZoom, setMapZoom] = useState(ZOOM_LEVEL);
   const [mapKey] = useState(() => Math.random());
@@ -1064,11 +1064,16 @@ export default function Map({ onChallengeClick }: MapProps) {
   }, []);
 
   const handleChallengeClick = (challenge: (typeof challenges)[0]) => {
-    completionStatus = 'pending';
+    setCompletionStatuses(prev => ({
+      ...prev,
+      [challenge.id]: 'pending'
+    }));
     setSelectedChallenge(challenge);
     setMapCenter(challenge.location);
     setMapZoom(CHALLENGE_ZOOM_LEVEL);
   };
+  
+   
 
 
   async function getFileUrl(file: File) {
@@ -1105,38 +1110,41 @@ export default function Map({ onChallengeClick }: MapProps) {
     return `${baseUrl}?${queryString}`;
   }
 
-  const handleSubmit = async (task:string) => {
-    setCompletionStatus('loading');
-
+  const handleSubmit = async (challenge: (typeof challenges)[0]) => {
+    setCompletionStatuses(prev => ({
+      ...prev,
+      [challenge.id]: 'loading'
+    }));
+  
     const params = {
-      reqs: task,
+      reqs: challenge.task,
       url: await getFileUrl(imagefile),
-    }
-
+    };
+  
     const functions = new Functions(AppClient);
     try {
       const result = await functions.createExecution(
-      '67b14a61003985a90a52',
-      '', 
-      false, 
-      createEncodedURL('https://67b14a62e437dba49a1f.appwrite.global', params),
-      ExecutionMethod.GET,
+        '67b14a61003985a90a52',
+        '',
+        false,
+        createEncodedURL('https://67b14a62e437dba49a1f.appwrite.global', params),
+        ExecutionMethod.GET,
       );
-
-      console.log('Function execution result:', result);
+  
       const responseBody = JSON.parse(result.responseBody);
-      console.log('Function execution result:', responseBody);
-      if (responseBody.taskCompleted === 'true') {
-      setCompletionStatus('accepted');
-      } else {
-      setCompletionStatus('rejected');
-      }
+      setCompletionStatuses(prev => ({
+        ...prev,
+        [challenge.id]: responseBody.taskCompleted === 'true' ? 'accepted' : 'rejected'
+      }));
     } catch (error) {
       console.error('Error executing function:', error);
-      setCompletionStatus('rejected');
+      setCompletionStatuses(prev => ({
+        ...prev,
+        [challenge.id]: 'rejected'
+      }));
     }
-    
   };
+  
   
   const getCategoryColor = (category: string) => {
     return categoryColors[category as keyof typeof categoryColors] || '#2563EB';
@@ -1155,8 +1163,10 @@ export default function Map({ onChallengeClick }: MapProps) {
     return `https://www.google.com/maps/dir/?api=1&destination=${location[0]},${location[1]}`;
   };
 
-  const renderCompletionStatus = () => {
-    if (completionStatus === 'loading') {
+  const renderCompletionStatus = (challengeId: number) => {
+    const status = completionStatuses[challengeId];
+    
+    if (status === 'loading') {
       return (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -1177,7 +1187,7 @@ export default function Map({ onChallengeClick }: MapProps) {
         </motion.div>
       );
     }
-    if (completionStatus === 'accepted') {
+    if (status === 'accepted') {
       return (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -1194,7 +1204,7 @@ export default function Map({ onChallengeClick }: MapProps) {
         </motion.div>
       );
     }
-    if (completionStatus === 'rejected') {
+    if (status === 'rejected') {
       return (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -1213,6 +1223,7 @@ export default function Map({ onChallengeClick }: MapProps) {
     }
     return null;
   };
+  
 
   return (
     <Paper shadow="sm" radius="lg" className="relative bg-white h-[800px]">
@@ -1234,117 +1245,124 @@ export default function Map({ onChallengeClick }: MapProps) {
             position={challenge.location}
             icon={createMarkerIcon(getCategoryColor(challenge.category))}
             eventHandlers={{
-              click: () => {handleChallengeClick(challenge);
-                          completionStatus = 'pending'},
+              click: () => {
+                handleChallengeClick(challenge);
+                setCompletionStatuses(prev => ({
+                  ...prev,
+                  [challenge.id]: 'pending'
+                }));
+              },
             }}
+            
           >
             <Popup closeButton={true}>
               <AnimatePresence mode="wait">
-                {selectedChallenge?.id === challenge.id &&
-                showCompletionForm ? (
-                  completionStatus === 'pending' ? (
-                    <motion.div
-                      key="form"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      className="p-4 min-w-[300px]"
-                    >
-                      <Stack spacing="md">
-                        <div>
-                          <h2
-                            className="text-xl font-bold mb-2"
-                            style={{
-                              color: getCategoryColor(challenge.category),
-                            }}
-                          >
-                            {challenge.title}
-                          </h2>
-                          <Text size="sm" c="dimmed" mb="md">
-                            {challenge.description}
-                          </Text>
-                        </div>
+              {selectedChallenge?.id === challenge.id &&
+showCompletionForm ? (
+  completionStatuses[challenge.id] === 'pending' ? (
+    <motion.div
+      key="form"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="p-4 min-w-[300px]"
+    >
+      <Stack spacing="md">
+        <div>
+          <h2
+            className="text-xl font-bold mb-2"
+            style={{
+              color: getCategoryColor(challenge.category),
+            }}
+          >
+            {challenge.title}
+          </h2>
+          <Text size="sm" c="dimmed" mb="md">
+            {challenge.description}
+          </Text>
+        </div>
 
-                        <div className="space-y-2">
-                          <Text fw={500} size="sm">
-                            Required Task:
-                          </Text>
-                          <Paper p="sm" className="bg-blue-50">
-                            <Text size="sm" fw={500}>
-                              {challenge.task}
-                            </Text>
-                          </Paper>
-                        </div>
-                        <FileInput
-                          label="Upload Photo Evidence"
-                          placeholder="Choose photo"
-                          accept="image/*"
-                          icon={<Camera size={16} />}
-                          required
-                          size="sm"
-                          onChange={(f) => {
-                          if (f) {
-                            imagefile = f;
-                          }
-                          }}
-                        />
+        <div className="space-y-2">
+          <Text fw={500} size="sm">
+            Required Task:
+          </Text>
+          <Paper p="sm" className="bg-blue-50">
+            <Text size="sm" fw={500}>
+              {challenge.task}
+            </Text>
+          </Paper>
+        </div>
+        <FileInput
+          label="Upload Photo Evidence"
+          placeholder="Choose photo"
+          accept="image/*"
+          icon={<Camera size={16} />}
+          required
+          size="sm"
+          onChange={(f) => {
+            if (f) {
+              imagefile = f;
+            }
+          }}
+        />
 
-                        {challenge.category === 'food' && (
-                          <>
-                            <Rating defaultValue={0} size="lg" />
-                            <Textarea
-                              label="Your Review"
-                              placeholder="Share your experience..."
-                              minRows={2}
-                              required
-                              size="sm"
-                              icon={<Heart size={16} />}
-                            />
-                          </>
-                        )}
+        {challenge.category === 'food' && (
+          <>
+            <Rating defaultValue={0} size="lg" />
+            <Textarea
+              label="Your Review"
+              placeholder="Share your experience..."
+              minRows={2}
+              required
+              size="sm"
+              icon={<Heart size={16} />}
+            />
+          </>
+        )}
 
-                        <NumberInput
-                          label="Time Spent (minutes)"
-                          placeholder="Enter time"
-                          min={1}
-                          required
-                          size="sm"
-                          icon={<Clock size={16} />}
-                        />
+        <NumberInput
+          label="Time Spent (minutes)"
+          placeholder="Enter time"
+          min={1}
+          required
+          size="sm"
+          icon={<Clock size={16} />}
+        />
 
-                        <Group justify="flex-end" mt="sm">
-                          <Button
-                            variant="light"
-                            onClick={() => {
-                              setShowCompletionForm(false);
-                            }}
-                            size="sm"
-                            style={{
-                              color: getCategoryColor(challenge.category),
-                            }}
-                            className="hover:opacity-90"
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            onClick={() => handleSubmit(challenge.task)}
-                            size="sm"
-                            style={{
-                              backgroundColor: getCategoryColor(
-                                challenge.category
-                              ),
-                            }}
-                            className="hover:opacity-90"
-                          >
-                            Submit Challenge
-                          </Button>
-                        </Group>
-                      </Stack>
-                    </motion.div>
-                  ) : (
-                    renderCompletionStatus()
-                  )
-                ) : (
+        <Group justify="flex-end" mt="sm">
+          <Button
+            variant="light"
+            onClick={() => {
+              setShowCompletionForm(false);
+            }}
+            size="sm"
+            style={{
+              color: getCategoryColor(challenge.category),
+            }}
+            className="hover:opacity-90"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={() => handleSubmit(challenge)}
+            size="sm"
+            style={{
+              backgroundColor: getCategoryColor(
+                challenge.category
+              ),
+            }}
+            className="hover:opacity-90"
+          >
+            Submit Challenge
+          </Button>
+        </Group>
+      </Stack>
+    </motion.div>
+  ) : (
+    renderCompletionStatus(challenge.id)
+  )
+) : (
+
                   <motion.div
                     key="info"
                     initial={{ opacity: 0, scale: 0.9 }}
