@@ -5,12 +5,13 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   images: { unoptimized: true },
-  typescript: { ignoreBuildErrors: true }
-};
-
-module.exports = {
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   webpack: (config) => {
     config.resolve.preferRelative = true;
     return config;
   },
-};;
+};
+
+module.exports = nextConfig;
