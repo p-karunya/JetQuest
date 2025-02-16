@@ -8,4 +8,9 @@ const nextConfig = {
   typescript: { ignoreBuildErrors: true }
 };
 
-module.exports = nextConfig;
+module.exports = {
+  webpack: (config) => {
+    config.resolve.preferRelative = true;
+    return config;
+  },
+};;

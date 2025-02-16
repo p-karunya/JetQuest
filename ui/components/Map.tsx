@@ -69,7 +69,7 @@ const challenges = [
     description: 'Visit DigiPen Institute of Technology in Redmond.',
     difficulty: 'Easy',
     estimatedTime: '1 hour',
-    task: 'Take a photo with the judges',
+    task: 'Take a photo a hackaton',
   },
   {
     id: 2,
@@ -247,7 +247,7 @@ const challenges = [
     description: 'Experience the breathtaking view from the Space Needle.',
     difficulty: 'Medium',
     estimatedTime: '1-2 hours',
-    task: 'Take a photo of the Seattle skyline from the observation deck',
+    task: 'Take a photo of the Seattle skyline from the Space needle observation deck, The Space needle will not be from the observation deck',
   },
   {
     id: 18,
@@ -1044,13 +1044,12 @@ export default function Map({ onChallengeClick }: MapProps) {
     (typeof challenges)[0] | null
   >(null);
   const [showCompletionForm, setShowCompletionForm] = useState(false);
-  const [completionStatus, setCompletionStatus] = useState<
+  let [completionStatus, setCompletionStatus] = useState<
     'pending' | 'loading' | 'accepted' | 'rejected'
   >('pending');
   const [mapCenter, setMapCenter] = useState<[number, number]>(WORLD_CENTER);
   const [mapZoom, setMapZoom] = useState(ZOOM_LEVEL);
   const [mapKey] = useState(() => Math.random());
-<<<<<<< HEAD
   let imagefile: File;
   
 
@@ -1065,6 +1064,7 @@ export default function Map({ onChallengeClick }: MapProps) {
   }, []);
 
   const handleChallengeClick = (challenge: (typeof challenges)[0]) => {
+    completionStatus = 'pending';
     setSelectedChallenge(challenge);
     setMapCenter(challenge.location);
     setMapZoom(CHALLENGE_ZOOM_LEVEL);
@@ -1123,8 +1123,10 @@ export default function Map({ onChallengeClick }: MapProps) {
       ExecutionMethod.GET,
       );
 
+      console.log('Function execution result:', result);
       const responseBody = JSON.parse(result.responseBody);
-      if (responseBody.taskCompleted === true) {
+      console.log('Function execution result:', responseBody);
+      if (responseBody.taskCompleted === 'true') {
       setCompletionStatus('accepted');
       } else {
       setCompletionStatus('rejected');
@@ -1135,9 +1137,24 @@ export default function Map({ onChallengeClick }: MapProps) {
     }
     
   };
+  
+  const getCategoryColor = (category: string) => {
+    return categoryColors[category as keyof typeof categoryColors] || '#2563EB';
+  };
 
-=======
->>>>>>> origin/main
+  const createMarkerIcon = (color: string) => {
+    return L.divIcon({
+      className: 'custom-marker',
+      html: `<div class="challenge-marker" style="background-color: ${color};"></div>`,
+      iconSize: [24, 24],
+      iconAnchor: [12, 12],
+    });
+  };
+
+  const getGoogleMapsUrl = (location: [number, number]) => {
+    return `https://www.google.com/maps/dir/?api=1&destination=${location[0]},${location[1]}`;
+  };
+
   const renderCompletionStatus = () => {
     if (completionStatus === 'loading') {
       return (
@@ -1217,10 +1234,11 @@ export default function Map({ onChallengeClick }: MapProps) {
             position={challenge.location}
             icon={createMarkerIcon(getCategoryColor(challenge.category))}
             eventHandlers={{
-              click: () => handleChallengeClick(challenge),
+              click: () => {handleChallengeClick(challenge);
+                          completionStatus = 'pending'},
             }}
           >
-            <Popup>
+            <Popup closeButton={true}>
               <AnimatePresence mode="wait">
                 {selectedChallenge?.id === challenge.id &&
                 showCompletionForm ? (
@@ -1309,7 +1327,7 @@ export default function Map({ onChallengeClick }: MapProps) {
                             Cancel
                           </Button>
                           <Button
-                            onClick={() => handleSubmit(challenge.tasks.join(', '))}
+                            onClick={() => handleSubmit(challenge.task)}
                             size="sm"
                             style={{
                               backgroundColor: getCategoryColor(

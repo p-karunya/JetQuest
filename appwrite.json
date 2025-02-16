@@ -72,7 +72,7 @@
             "schedule": "",
             "timeout": 15,
             "entrypoint": "src/main.py",
-            "commands": "",
+            "commands": "pip install -r requirements.txt",
             "specification": "s-1vcpu-512mb",
             "path": "functions/checkImage"
         }
