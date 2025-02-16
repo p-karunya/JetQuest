@@ -1,5 +1,5 @@
 {
-    "projectId": "67b0a193001cdabb42e4",
+    "projectId": "67b14725db85192a152a",
     "projectName": "WaForge",
     "settings": {
         "services": {
@@ -57,6 +57,24 @@
             "commands": "pip install openai\npip install pydantic\npip install appwrite\nexport OPENAI_API_KEY=\"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\"",
             "specification": "s-1vcpu-512mb",
             "path": "functions/checkImageChallenge"
+        },
+        {
+            "$id": "67b14a61003985a90a52",
+            "execute": [
+                "any"
+            ],
+            "name": "checkImage",
+            "enabled": true,
+            "logging": true,
+            "runtime": "python-3.12",
+            "scopes": [],
+            "events": [],
+            "schedule": "",
+            "timeout": 15,
+            "entrypoint": "src/main.py",
+            "commands": "",
+            "specification": "s-1vcpu-512mb",
+            "path": "functions/checkImage"
         }
     ]
 }
