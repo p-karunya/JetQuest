@@ -1,5 +1,5 @@
 'use client';
-
+import axios from 'axios';
 import { useState, useRef, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import {
@@ -28,7 +28,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { Functions, ID, Storage } from 'appwrite';
+import { ExecutionMethod, Functions, ID, Storage } from 'appwrite';
 import AppClient from './Apwr';
 
 // Updated to center on a more global view
@@ -227,33 +227,67 @@ export default function Map({ onChallengeClick }: MapProps) {
     return `https://www.google.com/maps/dir/?api=1&destination=${location[0]},${location[1]}`;
   };
   
+  async function getFileUrl(file: File) {
+    if (!file) {
+      throw new Error('No file provided.');
+    }
+  
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', "ml_default"); // Unsigned preset for uploads
+  
+    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/dzdlqeted/image/upload`;
+  
+    try {
+      const response = await axios.post(cloudinaryUrl, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+      return response.data.secure_url;
+    } catch (error) {
+      console.error('Cloudinary upload failed:', error);
+      throw new Error('Failed to upload file to Cloudinary.');
+    }
+  }
+
+  function createEncodedURL(baseUrl:string, params:object) {
+    const queryString = Object.entries(params)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join('&');
+  
+    return `${baseUrl}?${queryString}`;
+  }
 
   const handleSubmit = async (task:string) => {
-    let fileUrl: string;
     setCompletionStatus('loading');
 
-    const storage = new Storage(AppClient);
-
-    const promise = storage.createFile(
-      '67b16780002e7db874e9',
-      ID.unique(),
-      imagefile,
-    );
-
-    promise.then(
-      function (response) {
-      const fileId = response.$id;
-      fileUrl = storage.getFileView('67b16780002e7db874e9', fileId);
-      }
-    );
+    const params = {
+      reqs: task,
+      url: await getFileUrl(imagefile),
+    }
 
     const functions = new Functions(AppClient);
-    const result = await functions.createExecution(
+    try {
+      const result = await functions.createExecution(
       '67b14a61003985a90a52',
       '', 
       false, 
-      `\\?reqs=${task}`,
-    )
+      createEncodedURL('https://67b14a62e437dba49a1f.appwrite.global', params),
+      ExecutionMethod.GET,
+      );
+
+      const responseBody = JSON.parse(result.responseBody);
+      if (responseBody.taskCompleted === true) {
+      setCompletionStatus('accepted');
+      } else {
+      setCompletionStatus('rejected');
+      }
+    } catch (error) {
+      console.error('Error executing function:', error);
+      setCompletionStatus('rejected');
+    }
     
   };
 
