@@ -6,10 +6,29 @@ import { motion } from 'framer-motion';
 import { MapPin, Trophy, Target, Calendar } from 'lucide-react';
 import Header from '@/components/Header';
 
-const userProfile = {
+interface UserJSON {
+  name: string;
+  avatar: string;
+  totalPoints: number;
+  rank: string;
+  completedChallenges: number;
+  stats: {
+    adventure: number;
+    cultural: number;
+    food: number;
+    nature: number;
+  };
+  RecentEvents: {
+    id: number;
+    name: string;
+    description: string;
+    date: string;
+  }[];
+}
+
+const userProfile: UserJSON = {
   name: 'Sarah Johnson',
   avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-  joinDate: 'January 2024',
   totalPoints: 2500,
   rank: 'Explorer',
   completedChallenges: 15,
@@ -17,13 +36,13 @@ const userProfile = {
     adventure: 30,
     cultural: 25,
     food: 35,
-    nature: 10
+    nature: 10,
   },
-  achievements: [
+  RecentEvents: [
     { id: 1, name: 'First Challenge', description: 'Complete your first challenge', date: '2024-01-15' },
     { id: 2, name: 'Cultural Explorer', description: 'Complete 5 cultural challenges', date: '2024-01-20' },
-    { id: 3, name: 'Foodie', description: 'Complete 10 food challenges', date: '2024-02-01' }
-  ]
+    { id: 3, name: 'Foodie', description: 'Complete 10 food challenges', date: '2024-02-01' },
+  ],
 };
 
 export default function ProfilePage() {
@@ -52,26 +71,22 @@ export default function ProfilePage() {
                   <Title order={2} className="mt-4 mb-1">
                     {userProfile.name}
                   </Title>
-                  <Badge 
-                    size="lg" 
-                    radius="md" 
-                    className="mt-4 bg-blue-100 text-blue-600"
-                  >
+                  <Group justify="center" gap={8}>
+                    <MapPin size={16} className="text-blue-600" />
+                    <Text size="sm" c="dimmed">Location Unknown</Text>
+                  </Group>
+                  <Badge size="lg" radius="md" className="mt-4 bg-blue-100 text-blue-600">
                     {userProfile.rank}
                   </Badge>
-                  
+
                   <div className="mt-6 space-y-4">
                     <div>
                       <Text size="sm" c="dimmed" mb={2}>Total Points</Text>
-                      <Title order={3} className="text-blue-600">
-                        {userProfile.totalPoints}
-                      </Title>
+                      <Title order={3} className="text-blue-600">{userProfile.totalPoints}</Title>
                     </div>
                     <div>
                       <Text size="sm" c="dimmed" mb={2}>Completed Challenges</Text>
-                      <Title order={3} className="text-blue-600">
-                        {userProfile.completedChallenges}
-                      </Title>
+                      <Title order={3} className="text-blue-600">{userProfile.completedChallenges}</Title>
                     </div>
                   </div>
                 </div>
@@ -84,59 +99,36 @@ export default function ProfilePage() {
                     <Target size={24} className="text-blue-600" />
                     Progress
                   </Title>
-                  
+
                   <Stack spacing="lg">
-                    <div>
-                      <Group justify="space-between" mb={4}>
-                        <Text size="sm" fw={500}>Adventure</Text>
-                        <Text size="sm" c="dimmed">{userProfile.stats.adventure}%</Text>
-                      </Group>
-                      <Progress value={userProfile.stats.adventure} color="red" size="md" radius="xl" />
-                    </div>
-                    <div>
-                      <Group justify="space-between" mb={4}>
-                        <Text size="sm" fw={500}>Cultural</Text>
-                        <Text size="sm" c="dimmed">{userProfile.stats.cultural}%</Text>
-                      </Group>
-                      <Progress value={userProfile.stats.cultural} color="grape" size="md" radius="xl" />
-                    </div>
-                    <div>
-                      <Group justify="space-between" mb={4}>
-                        <Text size="sm" fw={500}>Food & Drink</Text>
-                        <Text size="sm" c="dimmed">{userProfile.stats.food}%</Text>
-                      </Group>
-                      <Progress value={userProfile.stats.food} color="teal" size="md" radius="xl" />
-                    </div>
-                    <div>
-                      <Group justify="space-between" mb={4}>
-                        <Text size="sm" fw={500}>Nature</Text>
-                        <Text size="sm" c="dimmed">{userProfile.stats.nature}%</Text>
-                      </Group>
-                      <Progress value={userProfile.stats.nature} color="blue" size="md" radius="xl" />
-                    </div>
+                    {Object.entries(userProfile.stats).map(([key, value]) => (
+                      <div key={key}>
+                        <Group justify="space-between" mb={4}>
+                          <Text size="sm" fw={500}>{key.charAt(0).toUpperCase() + key.slice(1)}</Text>
+                          <Text size="sm" c="dimmed">{value}%</Text>
+                        </Group>
+                        <Progress value={value} color="blue" size="md" radius="xl" />
+                      </div>
+                    ))}
                   </Stack>
                 </Paper>
 
+                {/* Recent Challenges */}
                 <Paper p="xl" radius="lg" className="bg-white">
                   <Title order={3} mb="lg" className="flex items-center gap-2">
                     <Trophy size={24} className="text-blue-600" />
-                    Recent Achievements
+                    Recent Challenges
                   </Title>
-                  
+
                   <Stack spacing="md">
-                    {userProfile.achievements.map((achievement) => (
-                      <Paper
-                        key={achievement.id}
-                        p="md"
-                        radius="md"
-                        className="border border-gray-100"
-                      >
+                    {userProfile.RecentEvents.map(({ id, name, description, date }) => (
+                      <Paper key={id} p="md" radius="md" className="border border-gray-100">
                         <Group position="apart">
                           <div>
-                            <Text fw={500} mb={1}>{achievement.name}</Text>
-                            <Text size="sm" c="dimmed">{achievement.description}</Text>
+                            <Text fw={500} mb={1}>{name}</Text>
+                            <Text size="sm" c="dimmed">{description}</Text>
                           </div>
-                          <Text size="sm" c="dimmed">{achievement.date}</Text>
+                          <Text size="sm" c="dimmed">{date}</Text>
                         </Group>
                       </Paper>
                     ))}
