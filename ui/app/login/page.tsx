@@ -26,6 +26,8 @@ export default function LoginPage() {
       // Store the user object in sessionStorage
       sessionStorage.setItem('user', JSON.stringify(user));
       console.log('User object saved:', user);
+
+      router.push('/dashboard');
     } catch (error) {
       console.error('Failed to create session or get user:', error);
     }
