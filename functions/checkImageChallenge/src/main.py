@@ -19,7 +19,7 @@ def check_img(reqs, url):
         raise ValueError("Missing 'requirements' or 'image_url'")
 
     # Initialize OpenAI client
-    client = OpenAI()
+    client = OpenAI(api_key="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")
 
     # Call OpenAI GPT-4o using the correct .parse method
     try:
