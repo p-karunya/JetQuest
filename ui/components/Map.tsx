@@ -249,6 +249,7 @@ export default function Map({ onChallengeClick }: MapProps) {
         const JSONFile = await response.json()
 
         JSONFile.completedChallenges += 1;
+        JSONFile.points += challenge.points;
         JSONFile.RecentEvents.push({
           id: challenge.id,
           name: challenge.title,
@@ -264,10 +265,10 @@ export default function Map({ onChallengeClick }: MapProps) {
         console.log("deleted: ", del);
 
         const userFile = await storage.createFile(
-          bucketId, // bucketId
-          fileId, // fileId
-          userJSONFile, // file
-          ["read(\"any\")"] // permissions (optional)
+          bucketId, 
+          fileId, 
+          userJSONFile, 
+          ["read(\"any\")"]
         );
   };}
   
