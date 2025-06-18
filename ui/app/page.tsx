@@ -4,14 +4,9 @@ import { useRouter } from 'next/navigation';
 import { Group, Title, Button, Container, Box, Stack } from '@mantine/core';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapIcon, Trophy, Layout, ChevronRight } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useLayoutEffect } from 'react';
 
 const cities = [
-  {
-    name: 'Paris',
-    image: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&w=1920&q=80',
-    landmark: 'Eiffel Tower'
-  },
   {
     name: 'Tokyo',
     image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&w=1920&q=80',
@@ -49,13 +44,14 @@ const cities = [
   }
 ];
 
+
 export default function Home() {
+  let CityImage;
   const router = useRouter();
   const [currentCityIndex, setCurrentCityIndex] = useState(0);
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [preloadedImages, setPreloadedImages] = useState<string[]>([]);
 
-  // Preload next image
   const preloadNextImage = useCallback((nextIndex: number) => {
     const img = new Image();
     img.src = cities[nextIndex].image;
@@ -72,14 +68,6 @@ export default function Home() {
     preloadNextImage(futureIndex);
   }, [currentCityIndex, preloadNextImage]);
 
-  // Initial preload of first few images
-  useEffect(() => {
-    const initialImagesToPreload = 3;
-    for (let i = 0; i < initialImagesToPreload; i++) {
-      const index = (currentCityIndex + i) % cities.length;
-      preloadNextImage(index);
-    }
-  }, []);
 
   useEffect(() => {
     const interval = setInterval(updateCityIndex, 3000);
@@ -87,6 +75,19 @@ export default function Home() {
   }, [updateCityIndex]);
 
   const currentCity = cities[currentCityIndex];
+
+  CityImage = (
+  <img
+    src={currentCity.image}
+    alt={`${currentCity.name} - ${currentCity.landmark}`}
+    className="object-cover w-full h-full"
+    onLoad={() => setIsImageLoading(false)}
+    style={{ 
+      width: '100%',
+      transition: 'opacity 0.5s ease-in-out'
+    }}
+  />
+);
 
   return (
     <Box className="min-h-screen hero-background">
@@ -142,9 +143,9 @@ export default function Home() {
         </Container>
       </header>
 
-      <main className="flex items-center justify-center min-h-[calc(100vh-100px)]">
+      <main className="flex items-center justify-center min-h-[calc(100vh-100px)] w-100wh">
         <Container size="xl">
-          <Stack align="center" spacing={32}>
+          <Stack align="center" gap={32}>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -155,7 +156,7 @@ export default function Home() {
                 Discover
               </Title>
               
-              <div className="h-32 sm:h-48 relative mb-20">
+              <div className="h-32 sm:h-48 relative mb-3">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentCity.name}
@@ -173,7 +174,7 @@ export default function Home() {
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="mb-8"
+                className="mb-4"
               >
                 <Button
                   size="xl"
@@ -181,7 +182,7 @@ export default function Home() {
                   onClick={() => router.push('/login')}
                   className="explore-button text-white"
                 >
-                  <span className="explore-text">Explore Now!</span>
+                 <span>Explore Now!</span>
                 </Button>
               </motion.div>
             </motion.div>
@@ -190,7 +191,7 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="w-full max-w-5xl aspect-[16/9] relative rounded-2xl overflow-hidden shadow-2xl mb-8"
+              className="w-[60vw] max-w-5xl aspect-[16/9] relative rounded-2xl overflow-hidden shadow-2xl mb-8 h-full"
             >
               <AnimatePresence mode="wait">
                 <motion.div
@@ -200,17 +201,10 @@ export default function Home() {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.5 }}
                   className="absolute inset-0"
-                >
-                  <img
-                    src={currentCity.image}
-                    alt={`${currentCity.name} - ${currentCity.landmark}`}
-                    className="object-cover w-full h-full"
-                    onLoad={() => setIsImageLoading(false)}
-                    style={{ 
-                      opacity: isImageLoading ? 0 : 1,
-                      transition: 'opacity 0.5s ease-in-out'
-                    }}
-                  />
+                > 
+
+                {CityImage}
+                  
                   <div className="absolute inset-0 bg-gradient-to-t from-blue-900/50 to-transparent" />
                   <div className="absolute bottom-8 left-8 right-8 text-white">
                     <motion.h2

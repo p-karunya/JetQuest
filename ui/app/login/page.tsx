@@ -81,6 +81,7 @@ export default function LoginPage() {
 
             <form onSubmit={handleLogin} className="space-y-4">
               <TextInput
+                type='email'
                 label="Email"
                 placeholder="your@email.com"
                 value={email}
@@ -91,10 +92,13 @@ export default function LoginPage() {
                   input: "focus:border-blue-600",
                   label: "text-gray-700"
                 }}
+                pattern='^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
               />
 
               <PasswordInput
+                type='password'
                 label="Password"
+                title = "Minimum of 8 characters"
                 placeholder="Your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -104,6 +108,7 @@ export default function LoginPage() {
                   input: "focus:border-blue-600",
                   label: "text-gray-700"
                 }}
+                pattern='^.{8,}$'
               />
 
               <div className="flex items-center justify-between mt-2">

@@ -68,8 +68,6 @@ export default function SignupPage() {
       }[];
     }
 
-    
-
     try {
       const userData: UserJSON = {
         name: user.name,
@@ -106,7 +104,14 @@ export default function SignupPage() {
       );
       
       sessionStorage.setItem('user', JSON.stringify(user));
-      router.push('/dashboard');
+
+      if (session.$createdAt && userFile.$id && user.$id) {
+        router.push('/dashboard');
+      } else {
+        sessionStorage.setItem('BadAttempt', JSON.stringify(true));
+        router.push('/signup');
+      }
+
     } catch (error) {
       console.error('Failed to login:', error);
     }
@@ -115,6 +120,11 @@ export default function SignupPage() {
   return (
     <Box className="min-h-screen w-full bg-gradient-to-br from-blue-600 to-blue-800 fixed inset-0 flex items-center justify-center">
       <Container size="xs">
+      {sessionStorage.getItem('BadAttempt') === 'true' && (
+        <Text color="red" size="sm" align="center">
+          Signup attempt failed. Please try again.
+        </Text>
+      )}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -151,9 +161,12 @@ export default function SignupPage() {
                   input: "focus:border-blue-600",
                   label: "text-gray-700"
                 }}
+                title='Name should have 8 characters and should only contain letters'
+                pattern='^(?=.*[a-zA-Z].*)[a-zA-Z ]{8,}$'
               />
 
               <TextInput
+                type='email'
                 label="Email"
                 placeholder="your@email.com"
                 value={email}
@@ -167,6 +180,7 @@ export default function SignupPage() {
               />
 
               <PasswordInput
+                type='password'
                 label="Password"
                 placeholder="Create a strong password"
                 value={password}
@@ -177,6 +191,7 @@ export default function SignupPage() {
                   input: "focus:border-blue-600",
                   label: "text-gray-700"
                 }}
+                pattern='^.{8,}$'
               />
 
               <Button
