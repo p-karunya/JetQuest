@@ -1,47 +1,56 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { AppShell, Group, Stack, Text, Container, Grid, Paper, Title } from '@mantine/core';
-import { motion } from 'framer-motion';
-import { Compass, Book, Coffee, Mountain } from 'lucide-react';
-import dynamic from 'next/dynamic';
-import Header from '@/components/Header';
+import { useState } from "react";
+import {
+  AppShell,
+  Group,
+  Stack,
+  Text,
+  Container,
+  Grid,
+  Paper,
+  Title,
+} from "@mantine/core";
+import { motion } from "framer-motion";
+import { Compass, Book, Coffee, Mountain } from "lucide-react";
+import dynamic from "next/dynamic";
+import Header from "@/components/Header";
 
-const Map = dynamic(() => import('../../components/Map'), { ssr: false });
+const Map = dynamic(() => import("../../components/Map"), { ssr: false });
 
 const categories = [
   {
     id: 1,
-    name: 'Adventure',
+    name: "Adventure",
     icon: Compass,
-    description: 'Explore thrilling outdoor activities',
+    description: "Explore thrilling outdoor activities",
     points: 500,
-    color: '#DC2626' // Red for adventure
+    color: "#DC2626", // Red for adventure
   },
   {
     id: 2,
-    name: 'Cultural',
+    name: "Cultural",
     icon: Book,
-    description: 'Discover local art and history',
+    description: "Discover local art and history",
     points: 400,
-    color: '#7C3AED' // Purple for cultural
+    color: "#7C3AED", // Purple for cultural
   },
   {
     id: 3,
-    name: 'Food & Drink',
+    name: "Food & Drink",
     icon: Coffee,
-    description: 'Taste Seattle\'s finest cuisine',
+    description: "Taste Seattle's finest cuisine",
     points: 300,
-    color: '#059669' // Green for food
+    color: "#059669", // Green for food
   },
   {
     id: 4,
-    name: 'Nature',
+    name: "Nature",
     icon: Mountain,
-    description: 'Connect with the outdoors',
+    description: "Connect with the outdoors",
     points: 450,
-    color: '#2563EB' // Blue for nature
-  }
+    color: "#2563EB", // Blue for nature
+  },
 ];
 
 export default function Dashboard() {
@@ -69,12 +78,26 @@ export default function Dashboard() {
                         radius="lg"
                         className="hover:shadow-lg transition-shadow duration-300"
                       >
-                        <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: `${category.color}15` }}>
-                          <category.icon size={24} style={{ color: category.color }} />
+                        <div
+                          className="w-12 h-12 rounded-full flex items-center justify-center mb-4"
+                          style={{ backgroundColor: `${category.color}15` }}
+                        >
+                          <category.icon
+                            size={24}
+                            style={{ color: category.color }}
+                          />
                         </div>
-                        <Title order={3} className="text-xl mb-2">{category.name}</Title>
-                        <Text size="sm" c="dimmed" mb="md">{category.description}</Text>
-                        <Text size="sm" className="font-semibold" style={{ color: category.color }}>
+                        <Title order={3} className="text-xl mb-2">
+                          {category.name}
+                        </Title>
+                        <Text size="sm" c="dimmed" mb="md">
+                          {category.description}
+                        </Text>
+                        <Text
+                          size="sm"
+                          className="font-semibold"
+                          style={{ color: category.color }}
+                        >
                           Up to {category.points} points
                         </Text>
                       </Paper>

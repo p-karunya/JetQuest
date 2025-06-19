@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   AppShell,
   Container,
@@ -12,13 +12,13 @@ import {
   Stack,
   Progress,
   Badge,
-} from '@mantine/core';
-import { motion } from 'framer-motion';
-import { MapPin, Trophy, Target, Route } from 'lucide-react';
-import Header from '@/components/Header';
-import { Storage } from 'appwrite';
-import AppClient from '@/components/Apwr';
-import { Router, useRouter } from 'next/router';
+} from "@mantine/core";
+import { motion } from "framer-motion";
+import { MapPin, Trophy, Target, Route } from "lucide-react";
+import Header from "@/components/Header";
+import { Storage } from "appwrite";
+import AppClient from "@/components/Apwr";
+import { Router, useRouter } from "next/router";
 
 interface UserJSON {
   name: string;
@@ -42,19 +42,19 @@ interface UserJSON {
 
 function transformToValidString(input: string) {
   // Remove invalid characters
-  let transformed = input.replace(/[^a-zA-Z0-9._-]/g, '');
+  let transformed = input.replace(/[^a-zA-Z0-9._-]/g, "");
 
   // Trim to max 36 characters
   transformed = transformed.slice(0, 36);
 
   // Ensure it doesn't start with a special character
   if (/^[._-]/.test(transformed)) {
-    transformed = transformed.replace(/^[._-]+/, '');
+    transformed = transformed.replace(/^[._-]+/, "");
   }
 
   // If empty after cleaning, default to 'default_name'
   if (transformed.length === 0) {
-    transformed = 'default_name';
+    transformed = "default_name";
   }
 
   return transformed;
@@ -67,43 +67,45 @@ export default function ProfilePage() {
 
   useEffect(() => {
     async function fetchUserProfile() {
-      let userName = '';
+      let userName = "";
       try {
-        const userString = sessionStorage.getItem('user');
+        const userString = sessionStorage.getItem("user");
 
-      if (userString) {
+        if (userString) {
           // Parse the JSON string to an object
-        const user = JSON.parse(userString);
-         userName = user.name;
-      } else {
-        const router = useRouter();
-        router.push('/login');
-      }
+          const user = JSON.parse(userString);
+          userName = user.name;
+        } else {
+          const router = useRouter();
+          router.push("/login");
+        }
         // Initialize Appwrite storage with your AppClient instance
         const storage = new Storage(AppClient);
 
         // Replace these placeholders with your actual bucket ID and file ID
-        const bucketId = '67b227840031b7167827';
+        const bucketId = "67b227840031b7167827";
         const fileId = transformToValidString(userName);
 
         // Retrieve the download URL for the JSON file
         const fileUrl = storage.getFileDownload(bucketId, fileId);
 
-        console.log('Fetching user profile from:', fileUrl);
+        console.log("Fetching user profile from:", fileUrl);
 
         // Fetch the JSON file from Appwrite storage
         const response = await fetch(fileUrl, { cache: "no-store" });
         if (!response.ok) {
-          throw new Error(`Failed to fetch file: ${response.status} ${response.statusText}`);
+          throw new Error(
+            `Failed to fetch file: ${response.status} ${response.statusText}`,
+          );
         }
 
         // Parse the JSON data
         const data: UserJSON = await response.json();
         setUserProfile(data);
-        console.log('User profile data:', data);
+        console.log("User profile data:", data);
       } catch (err: any) {
-        console.error('Error fetching user profile:', err);
-        setError(err.message || 'An unknown error occurred');
+        console.error("Error fetching user profile:", err);
+        setError(err.message || "An unknown error occurred");
       } finally {
         setLoading(false);
       }
@@ -130,7 +132,7 @@ export default function ProfilePage() {
         <Header />
         <AppShell.Main className="bg-blue-50">
           <Container size="xl" py="xl">
-            <Text color="red">Error: {error || 'User profile not found'}</Text>
+            <Text color="red">Error: {error || "User profile not found"}</Text>
           </Container>
         </AppShell.Main>
       </>
@@ -168,7 +170,11 @@ export default function ProfilePage() {
                       Location Unknown
                     </Text>
                   </Group>
-                  <Badge size="lg" radius="md" className="mt-4 bg-blue-100 text-blue-600">
+                  <Badge
+                    size="lg"
+                    radius="md"
+                    className="mt-4 bg-blue-100 text-blue-600"
+                  >
                     {userProfile.rank}
                   </Badge>
 
@@ -212,7 +218,12 @@ export default function ProfilePage() {
                             {value}%
                           </Text>
                         </Group>
-                        <Progress value={value} color="blue" size="md" radius="xl" />
+                        <Progress
+                          value={value}
+                          color="blue"
+                          size="md"
+                          radius="xl"
+                        />
                       </div>
                     ))}
                   </Stack>
@@ -226,23 +237,30 @@ export default function ProfilePage() {
                   </Title>
 
                   <Stack spacing="md">
-                    {userProfile.RecentEvents.map(({ id, name, description, date }) => (
-                      <Paper key={id} p="md" radius="md" className="border border-gray-100">
-                        <Group position="apart">
-                          <div>
-                            <Text fw={500} mb={1}>
-                              {name}
-                            </Text>
+                    {userProfile.RecentEvents.map(
+                      ({ id, name, description, date }) => (
+                        <Paper
+                          key={id}
+                          p="md"
+                          radius="md"
+                          className="border border-gray-100"
+                        >
+                          <Group position="apart">
+                            <div>
+                              <Text fw={500} mb={1}>
+                                {name}
+                              </Text>
+                              <Text size="sm" c="dimmed">
+                                {description}
+                              </Text>
+                            </div>
                             <Text size="sm" c="dimmed">
-                              {description}
+                              {date}
                             </Text>
-                          </div>
-                          <Text size="sm" c="dimmed">
-                            {date}
-                          </Text>
-                        </Group>
-                      </Paper>
-                    ))}
+                          </Group>
+                        </Paper>
+                      ),
+                    )}
                   </Stack>
                 </Paper>
               </div>

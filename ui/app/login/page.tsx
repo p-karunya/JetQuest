@@ -1,26 +1,36 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { TextInput, PasswordInput, Checkbox, Button, Paper, Title, Text, Container, Box } from '@mantine/core';
-import { motion } from 'framer-motion';
-import { MapIcon, Mail, Lock } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import AppClient from '@/components/Apwr';
-import { Account } from 'appwrite';
+import { useState, useEffect } from "react";
+import {
+  TextInput,
+  PasswordInput,
+  Checkbox,
+  Button,
+  Paper,
+  Title,
+  Text,
+  Container,
+  Box,
+} from "@mantine/core";
+import { motion } from "framer-motion";
+import { MapIcon, Mail, Lock } from "lucide-react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import AppClient from "@/components/Apwr";
+import { Account } from "appwrite";
 
 // Separate function to check sessionStorage safely
 function checkUserSession() {
-  if (typeof window !== 'undefined') {
-    const user = sessionStorage.getItem('user');
+  if (typeof window !== "undefined") {
+    const user = sessionStorage.getItem("user");
     return user ? JSON.parse(user) : null;
   }
   return null;
 }
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
 
@@ -28,7 +38,7 @@ export default function LoginPage() {
   useEffect(() => {
     const user = checkUserSession();
     if (user) {
-      router.push('/dashboard');
+      router.push("/dashboard");
     }
   }, [router]);
 
@@ -42,13 +52,13 @@ export default function LoginPage() {
       // Get the authenticated user's object
       const user = await account.get();
       // Store the user object in sessionStorage (client-side only)
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('user', JSON.stringify(user));
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("user", JSON.stringify(user));
       }
-      console.log('User object saved:', user);
-      router.push('/dashboard');
+      console.log("User object saved:", user);
+      router.push("/dashboard");
     } catch (error) {
-      console.error('Failed to create session or get user:', error);
+      console.error("Failed to create session or get user:", error);
     }
   };
 
@@ -61,7 +71,12 @@ export default function LoginPage() {
           transition={{ duration: 0.5 }}
           className="w-full"
         >
-          <Paper radius="lg" p="xl" withBorder className="bg-white/95 backdrop-blur-sm shadow-xl">
+          <Paper
+            radius="lg"
+            p="xl"
+            withBorder
+            className="bg-white/95 backdrop-blur-sm shadow-xl"
+          >
             <div className="flex flex-col items-center mb-6">
               <motion.div
                 initial={{ scale: 0.9 }}
@@ -71,7 +86,10 @@ export default function LoginPage() {
               >
                 <MapIcon size={48} className="text-blue-600" />
               </motion.div>
-              <Title order={1} className="text-2xl font-bold text-center mb-2 text-gray-800">
+              <Title
+                order={1}
+                className="text-2xl font-bold text-center mb-2 text-gray-800"
+              >
                 Welcome Back
               </Title>
               <Text c="dimmed" size="sm">
@@ -81,7 +99,7 @@ export default function LoginPage() {
 
             <form onSubmit={handleLogin} className="space-y-4">
               <TextInput
-                type='email'
+                type="email"
                 label="Email"
                 placeholder="your@email.com"
                 value={email}
@@ -90,15 +108,15 @@ export default function LoginPage() {
                 leftSection={<Mail size={16} className="text-blue-600" />}
                 classNames={{
                   input: "focus:border-blue-600",
-                  label: "text-gray-700"
+                  label: "text-gray-700",
                 }}
-                pattern='^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+                pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
               />
 
               <PasswordInput
-                type='password'
+                type="password"
                 label="Password"
-                title = "Minimum of 8 characters"
+                title="Minimum of 8 characters"
                 placeholder="Your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -106,9 +124,9 @@ export default function LoginPage() {
                 leftSection={<Lock size={16} className="text-blue-600" />}
                 classNames={{
                   input: "focus:border-blue-600",
-                  label: "text-gray-700"
+                  label: "text-gray-700",
                 }}
-                pattern='^.{8,}$'
+                pattern="^.{8,}$"
               />
 
               <div className="flex items-center justify-between mt-2">
@@ -117,10 +135,10 @@ export default function LoginPage() {
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.currentTarget.checked)}
                   classNames={{
-                    input: "checked:bg-blue-600 checked:border-blue-600"
+                    input: "checked:bg-blue-600 checked:border-blue-600",
                   }}
                 />
-                <Button 
+                <Button
                   variant="subtle"
                   size="sm"
                   className="text-sm text-blue-600 hover:text-blue-700"
@@ -138,8 +156,11 @@ export default function LoginPage() {
               </Button>
 
               <Text align="center" size="sm" className="mt-4">
-                Don't have an account?{' '}
-                <Link href="/signup" className="text-blue-600 hover:text-blue-700 font-medium">
+                Don't have an account?{" "}
+                <Link
+                  href="/signup"
+                  className="text-blue-600 hover:text-blue-700 font-medium"
+                >
                   Create one
                 </Link>
               </Text>

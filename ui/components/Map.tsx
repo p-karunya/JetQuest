@@ -1,7 +1,7 @@
-'use client';
-import axios from 'axios';
-import { useState, useRef, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+"use client";
+import axios from "axios";
+import { useState, useRef, useEffect } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import {
   Paper,
   Button,
@@ -18,7 +18,7 @@ import {
   Badge,
   Progress,
   Tabs,
-} from '@mantine/core';
+} from "@mantine/core";
 import {
   Camera,
   Clock,
@@ -27,14 +27,14 @@ import {
   XCircle,
   Navigation2,
   CheckSquare,
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
-import { ExecutionMethod, Functions, ID, Storage } from 'appwrite';
-import AppClient from './Apwr';
-import { Session } from 'node:inspector';
-import { useRouter } from 'next/router';
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import { ExecutionMethod, Functions, ID, Storage } from "appwrite";
+import AppClient from "./Apwr";
+import { Session } from "node:inspector";
+import { useRouter } from "next/router";
 
 const WORLD_CENTER: [number, number] = [20, 0];
 const ZOOM_LEVEL = 2;
@@ -64,8 +64,8 @@ function MapController({
 const storage = new Storage(AppClient);
 
 const FileURL = storage.getFileDownload(
-    '67b22408001089da181d', 
-    '67b237a000367421bee5' 
+  "67b22408001089da181d",
+  "67b237a000367421bee5",
 );
 
 console.log(FileURL);
@@ -78,11 +78,11 @@ interface MapProps {
 }
 
 const categoryColors = {
-  adventure: '#DC2626',
-  cultural: '#7C3AED',
-  food: '#059669',
-  nature: '#2563EB',
-  historical: '#D97706',
+  adventure: "#DC2626",
+  cultural: "#7C3AED",
+  food: "#059669",
+  nature: "#2563EB",
+  historical: "#D97706",
 };
 
 export default function Map({ onChallengeClick }: MapProps) {
@@ -90,14 +90,14 @@ export default function Map({ onChallengeClick }: MapProps) {
     (typeof challenges)[0] | null
   >(null);
   const [showCompletionForm, setShowCompletionForm] = useState(false);
-  const [completionStatuses, setCompletionStatuses] = useState<Record<number, 'pending' | 'loading' | 'accepted' | 'rejected'>>({});
-
+  const [completionStatuses, setCompletionStatuses] = useState<
+    Record<number, "pending" | "loading" | "accepted" | "rejected">
+  >({});
 
   const [mapCenter, setMapCenter] = useState<[number, number]>(WORLD_CENTER);
   const [mapZoom, setMapZoom] = useState(ZOOM_LEVEL);
   const [mapKey] = useState(() => Math.random());
   let imagefile: File;
-  
 
   const loadingTimeoutRef = useRef<NodeJS.Timeout>();
   const resetTimeoutRef = useRef<NodeJS.Timeout>();
@@ -110,176 +110,186 @@ export default function Map({ onChallengeClick }: MapProps) {
   }, []);
 
   const handleChallengeClick = (challenge: (typeof challenges)[0]) => {
-    setCompletionStatuses(prev => ({
+    setCompletionStatuses((prev) => ({
       ...prev,
-      [challenge.id]: 'pending'
+      [challenge.id]: "pending",
     }));
     setSelectedChallenge(challenge);
     setMapCenter(challenge.location);
     setMapZoom(CHALLENGE_ZOOM_LEVEL);
   };
-  
-   
-
 
   async function getFileUrl(file: File) {
     if (!file) {
-      throw new Error('No file provided.');
+      throw new Error("No file provided.");
     }
-  
+
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', "ml_default"); // Unsigned preset for uploads
-  
+    formData.append("file", file);
+    formData.append("upload_preset", "ml_default"); // Unsigned preset for uploads
+
     const cloudinaryUrl = `https://api.cloudinary.com/v1_1/dzdlqeted/image/upload`;
-  
+
     try {
       const response = await axios.post(cloudinaryUrl, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
-  
+
       return response.data.secure_url;
     } catch (error) {
-      console.error('Cloudinary upload failed:', error);
-      throw new Error('Failed to upload file to Cloudinary.');
+      console.error("Cloudinary upload failed:", error);
+      throw new Error("Failed to upload file to Cloudinary.");
     }
   }
 
-
-  function createEncodedURL(baseUrl:string, params:object) {
+  function createEncodedURL(baseUrl: string, params: object) {
     const queryString = Object.entries(params)
-      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-      .join('&');
-  
+      .map(
+        ([key, value]) =>
+          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
+      )
+      .join("&");
+
     return `${baseUrl}?${queryString}`;
   }
   function transformToValidString(input: string) {
     // Remove invalid characters
-    let transformed = input.replace(/[^a-zA-Z0-9._-]/g, '');
-  
+    let transformed = input.replace(/[^a-zA-Z0-9._-]/g, "");
+
     // Trim to max 36 characters
     transformed = transformed.slice(0, 36);
-  
+
     // Ensure it doesn't start with a special character
     if (/^[._-]/.test(transformed)) {
-      transformed = transformed.replace(/^[._-]+/, '');
+      transformed = transformed.replace(/^[._-]+/, "");
     }
-  
+
     // If empty after cleaning, default to 'default_name'
     if (transformed.length === 0) {
-      transformed = 'default_name';
+      transformed = "default_name";
     }
-  
+
     return transformed;
   }
 
   const handleSubmit = async (challenge: (typeof challenges)[0]) => {
     let winpoint: boolean = false;
-    setCompletionStatuses(prev => ({
+    setCompletionStatuses((prev) => ({
       ...prev,
-      [challenge.id]: 'loading'
+      [challenge.id]: "loading",
     }));
-  
+
     const params = {
       reqs: challenge.task,
       url: await getFileUrl(imagefile),
     };
-  
+
     const functions = new Functions(AppClient);
     try {
       const result = await functions.createExecution(
-        '67b14a61003985a90a52',
-        '',
+        "67b14a61003985a90a52",
+        "",
         false,
-        createEncodedURL('https://67b14a62e437dba49a1f.appwrite.global', params),
+        createEncodedURL(
+          "https://67b14a62e437dba49a1f.appwrite.global",
+          params,
+        ),
         ExecutionMethod.GET,
       );
-  
+
       const responseBody = JSON.parse(result.responseBody);
-      
-      if (responseBody.taskCompleted === 'true') {
+
+      if (responseBody.taskCompleted === "true") {
         winpoint = true;
       }
 
-      setCompletionStatuses(prev => ({
+      setCompletionStatuses((prev) => ({
         ...prev,
-        [challenge.id]: responseBody.taskCompleted === 'true' ? 'accepted' : 'rejected'
+        [challenge.id]:
+          responseBody.taskCompleted === "true" ? "accepted" : "rejected",
       }));
     } catch (error) {
-      console.error('Error executing function:', error);
-      setCompletionStatuses(prev => ({
+      console.error("Error executing function:", error);
+      setCompletionStatuses((prev) => ({
         ...prev,
-        [challenge.id]: 'rejected'
+        [challenge.id]: "rejected",
       }));
     }
-    if (winpoint) {     
-      let userName = '';
-      
-      const userString = sessionStorage.getItem('user');
+    if (winpoint) {
+      let userName = "";
+
+      const userString = sessionStorage.getItem("user");
 
       if (userString) {
-          // Parse the JSON string to an object
+        // Parse the JSON string to an object
         const user = JSON.parse(userString);
         userName = user.name;
       } else {
         const router = useRouter();
-        router.push('/login');
+        router.push("/login");
       }
-        
-        // Initialize Appwrite storage with your AppClient instance
-        const storage = new Storage(AppClient);
 
-        // Replace these placeholders with your actual bucket ID and file ID
-        const bucketId = '67b227840031b7167827';
-        const fileId = transformToValidString(userName);
-        console.log("fileId: ", fileId);
+      // Initialize Appwrite storage with your AppClient instance
+      const storage = new Storage(AppClient);
 
-        // Retrieve the download URL for the JSON file
-        const fileUrl = storage.getFileDownload(bucketId, fileId);
+      // Replace these placeholders with your actual bucket ID and file ID
+      const bucketId = "67b227840031b7167827";
+      const fileId = transformToValidString(userName);
+      console.log("fileId: ", fileId);
 
-        console.log('Fetching user profile from:', fileUrl);
+      // Retrieve the download URL for the JSON file
+      const fileUrl = storage.getFileDownload(bucketId, fileId);
 
-        // Fetch the JSON file from Appwrite storage
-        const response = await fetch(fileUrl);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch file: ${response.status} ${response.statusText}`);
-        }
-        const JSONFile = await response.json()
+      console.log("Fetching user profile from:", fileUrl);
 
-        JSONFile.completedChallenges += 1;
-        JSONFile.points += challenge.points;
-        JSONFile.RecentEvents.push({
-          id: challenge.id,
-          name: challenge.title,
-          description: challenge.description,
-          date: new Date().toISOString(),})
-        JSONFile.stats[challenge.category] += 1;
-        
-        const userBlob = new Blob([JSON.stringify(JSONFile)], { type: 'application/json' });
-        const updatedFileName = transformToValidString(userName);
-        const userJSONFile = new File([userBlob], `${updatedFileName}.json`, { type: 'application/json' });
-        
-        const del = await storage.deleteFile(bucketId, fileId);
-        console.log("deleted: ", del);
-
-        const userFile = await storage.createFile(
-          bucketId, 
-          fileId, 
-          userJSONFile, 
-          ["read(\"any\")"]
+      // Fetch the JSON file from Appwrite storage
+      const response = await fetch(fileUrl);
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch file: ${response.status} ${response.statusText}`,
         );
-  };}
-  
-  
+      }
+      const JSONFile = await response.json();
+
+      JSONFile.completedChallenges += 1;
+      JSONFile.points += challenge.points;
+      JSONFile.RecentEvents.push({
+        id: challenge.id,
+        name: challenge.title,
+        description: challenge.description,
+        date: new Date().toISOString(),
+      });
+      JSONFile.stats[challenge.category] += 1;
+
+      const userBlob = new Blob([JSON.stringify(JSONFile)], {
+        type: "application/json",
+      });
+      const updatedFileName = transformToValidString(userName);
+      const userJSONFile = new File([userBlob], `${updatedFileName}.json`, {
+        type: "application/json",
+      });
+
+      const del = await storage.deleteFile(bucketId, fileId);
+      console.log("deleted: ", del);
+
+      const userFile = await storage.createFile(
+        bucketId,
+        fileId,
+        userJSONFile,
+        ['read("any")'],
+      );
+    }
+  };
+
   const getCategoryColor = (category: string) => {
-    return categoryColors[category as keyof typeof categoryColors] || '#2563EB';
+    return categoryColors[category as keyof typeof categoryColors] || "#2563EB";
   };
 
   const createMarkerIcon = (color: string) => {
     return L.divIcon({
-      className: 'custom-marker',
+      className: "custom-marker",
       html: `<div class="challenge-marker" style="background-color: ${color};"></div>`,
       iconSize: [24, 24],
       iconAnchor: [12, 12],
@@ -292,8 +302,8 @@ export default function Map({ onChallengeClick }: MapProps) {
 
   const renderCompletionStatus = (challengeId: number) => {
     const status = completionStatuses[challengeId];
-    
-    if (status === 'loading') {
+
+    if (status === "loading") {
       return (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -314,7 +324,7 @@ export default function Map({ onChallengeClick }: MapProps) {
         </motion.div>
       );
     }
-    if (status === 'accepted') {
+    if (status === "accepted") {
       return (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -331,7 +341,7 @@ export default function Map({ onChallengeClick }: MapProps) {
         </motion.div>
       );
     }
-    if (status === 'rejected') {
+    if (status === "rejected") {
       return (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -350,7 +360,6 @@ export default function Map({ onChallengeClick }: MapProps) {
     }
     return null;
   };
-  
 
   return (
     <Paper shadow="sm" radius="lg" className="relative bg-white h-[800px]">
@@ -374,122 +383,120 @@ export default function Map({ onChallengeClick }: MapProps) {
             eventHandlers={{
               click: () => {
                 handleChallengeClick(challenge);
-                setCompletionStatuses(prev => ({
+                setCompletionStatuses((prev) => ({
                   ...prev,
-                  [challenge.id]: 'pending'
+                  [challenge.id]: "pending",
                 }));
               },
             }}
-            
           >
             <Popup closeButton={true}>
               <AnimatePresence mode="wait">
-              {selectedChallenge?.id === challenge.id &&
-showCompletionForm ? (
-  completionStatuses[challenge.id] === 'pending' ? (
-    <motion.div
-      key="form"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="p-4 min-w-[300px]"
-    >
-      <Stack spacing="md">
-        <div>
-          <h2
-            className="text-xl font-bold mb-2"
-            style={{
-              color: getCategoryColor(challenge.category),
-            }}
-          >
-            {challenge.title}
-          </h2>
-          <Text size="sm" c="dimmed" mb="md">
-            {challenge.description}
-          </Text>
-        </div>
+                {selectedChallenge?.id === challenge.id &&
+                showCompletionForm ? (
+                  completionStatuses[challenge.id] === "pending" ? (
+                    <motion.div
+                      key="form"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      className="p-4 min-w-[300px]"
+                    >
+                      <Stack spacing="md">
+                        <div>
+                          <h2
+                            className="text-xl font-bold mb-2"
+                            style={{
+                              color: getCategoryColor(challenge.category),
+                            }}
+                          >
+                            {challenge.title}
+                          </h2>
+                          <Text size="sm" c="dimmed" mb="md">
+                            {challenge.description}
+                          </Text>
+                        </div>
 
-        <div className="space-y-2">
-          <Text fw={500} size="sm">
-            Required Task:
-          </Text>
-          <Paper p="sm" className="bg-blue-50">
-            <Text size="sm" fw={500}>
-              {challenge.task}
-            </Text>
-          </Paper>
-        </div>
-        <FileInput
-          label="Upload Photo Evidence"
-          placeholder="Choose photo"
-          accept="image/*"
-          icon={<Camera size={16} />}
-          required
-          size="sm"
-          onChange={(f) => {
-            if (f) {
-              imagefile = f;
-            }
-          }}
-        />
+                        <div className="space-y-2">
+                          <Text fw={500} size="sm">
+                            Required Task:
+                          </Text>
+                          <Paper p="sm" className="bg-blue-50">
+                            <Text size="sm" fw={500}>
+                              {challenge.task}
+                            </Text>
+                          </Paper>
+                        </div>
+                        <FileInput
+                          label="Upload Photo Evidence"
+                          placeholder="Choose photo"
+                          accept="image/*"
+                          icon={<Camera size={16} />}
+                          required
+                          size="sm"
+                          onChange={(f) => {
+                            if (f) {
+                              imagefile = f;
+                            }
+                          }}
+                        />
 
-        {challenge.category === 'food' && (
-          <>
-            <Rating defaultValue={0} size="lg" />
-            <Textarea
-              label="Your Review"
-              placeholder="Share your experience..."
-              minRows={2}
-              required
-              size="sm"
-              icon={<Heart size={16} />}
-            />
-          </>
-        )}
+                        {challenge.category === "food" && (
+                          <>
+                            <Rating defaultValue={0} size="lg" />
+                            <Textarea
+                              label="Your Review"
+                              placeholder="Share your experience..."
+                              minRows={2}
+                              required
+                              size="sm"
+                              icon={<Heart size={16} />}
+                            />
+                          </>
+                        )}
 
-        <NumberInput
-          label="Time Spent (minutes)"
-          placeholder="Enter time"
-          min={1}
-          required
-          size="sm"
-          icon={<Clock size={16} />}
-        />
+                        <NumberInput
+                          label="Time Spent (minutes)"
+                          placeholder="Enter time"
+                          min={1}
+                          required
+                          size="sm"
+                          icon={<Clock size={16} />}
+                        />
 
-        <Group justify="flex-end" mt="sm">
-          <Button
-            variant="light"
-            onClick={() => {
-              setShowCompletionForm(false);
-            }}
-            size="sm"
-            style={{
-              color: getCategoryColor(challenge.category),
-            }}
-            className="hover:opacity-90"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={() => handleSubmit(challenge)}
-            size="sm"
-            style={{
-              backgroundColor: getCategoryColor(
-                challenge.category
-              ),
-            }}
-            className="hover:opacity-90"
-          >
-            Submit Challenge
-          </Button>
-        </Group>
-      </Stack>
-    </motion.div>
-  ) : (
-    renderCompletionStatus(challenge.id)
-  )
-) : (
-
+                        <Group justify="flex-end" mt="sm">
+                          <Button
+                            variant="light"
+                            onClick={() => {
+                              setShowCompletionForm(false);
+                            }}
+                            size="sm"
+                            style={{
+                              color: getCategoryColor(challenge.category),
+                            }}
+                            className="hover:opacity-90"
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            onClick={() => handleSubmit(challenge)}
+                            size="sm"
+                            style={{
+                              backgroundColor: getCategoryColor(
+                                challenge.category,
+                              ),
+                            }}
+                            className="hover:opacity-90"
+                          >
+                            Submit Challenge
+                          </Button>
+                        </Group>
+                      </Stack>
+                    </motion.div>
+                  ) : (
+                    renderCompletionStatus(challenge.id)
+                  )
+                ) : (
                   <motion.div
                     key="info"
                     initial={{ opacity: 0, scale: 0.9 }}

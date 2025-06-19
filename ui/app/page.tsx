@@ -62,7 +62,7 @@ export default function Home() {
     const nextIndex = (currentCityIndex + 1) % cities.length;
     setCurrentCityIndex(nextIndex);
     setIsImageLoading(true);
-    
+
     // Preload the next image in sequence
     const futureIndex = (nextIndex + 1) % cities.length;
     preloadNextImage(futureIndex);
@@ -77,17 +77,17 @@ export default function Home() {
   const currentCity = cities[currentCityIndex];
 
   CityImage = (
-  <img
-    src={currentCity.image}
-    alt={`${currentCity.name} - ${currentCity.landmark}`}
-    className="object-cover w-full h-full"
-    onLoad={() => setIsImageLoading(false)}
-    style={{ 
-      width: '100%',
-      transition: 'opacity 0.5s ease-in-out'
-    }}
-  />
-);
+    <img
+      src={currentCity.image}
+      alt={`${currentCity.name} - ${currentCity.landmark}`}
+      className="object-cover w-full h-full"
+      onLoad={() => setIsImageLoading(false)}
+      style={{
+        width: '100%',
+        transition: 'opacity 0.5s ease-in-out'
+      }}
+    />
+  );
 
   return (
     <Box className="min-h-screen hero-background">
@@ -98,7 +98,7 @@ export default function Home() {
               <motion.div
                 initial={{ scale: 0.9 }}
                 animate={{ scale: 1 }}
-                transition={{ 
+                transition={{
                   duration: 2,
                   repeat: Infinity,
                   repeatType: "reverse"
@@ -155,7 +155,7 @@ export default function Home() {
               <Title className="text-8xl sm:text-[12rem] font-bold text-white leading-tight mb-16 discover-text">
                 Discover
               </Title>
-              
+
               <div className="h-32 sm:h-48 relative mb-3">
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -170,7 +170,7 @@ export default function Home() {
                   </motion.div>
                 </AnimatePresence>
               </div>
-              
+
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -182,7 +182,7 @@ export default function Home() {
                   onClick={() => router.push('/login')}
                   className="explore-button text-white"
                 >
-                 <span>Explore Now!</span>
+                  <span className="text-lg sm:text-2xl font-semibold">Explore Now</span>
                 </Button>
               </motion.div>
             </motion.div>
@@ -201,10 +201,10 @@ export default function Home() {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.5 }}
                   className="absolute inset-0"
-                > 
+                >
 
-                {CityImage}
-                  
+                  {CityImage}
+
                   <div className="absolute inset-0 bg-gradient-to-t from-blue-900/50 to-transparent" />
                   <div className="absolute bottom-8 left-8 right-8 text-white">
                     <motion.h2

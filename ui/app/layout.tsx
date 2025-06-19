@@ -1,34 +1,34 @@
-import '@mantine/core/styles.css';
-import './globals.css';
+import "@mantine/core/styles.css";
+import "./globals.css";
 import {
   ColorSchemeScript,
   MantineProvider,
   AppShell,
   createTheme,
-} from '@mantine/core';
-import { Inter } from 'next/font/google';
+} from "@mantine/core";
+import { Inter } from "next/font/google";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: 'JetQuest',
-  description: 'Explore and complete exciting challenges across Seattle',
+  title: "JetQuest",
+  description: "Explore and complete exciting challenges across Seattle",
 };
 
 const theme = createTheme({
-  primaryColor: 'blue',
+  primaryColor: "blue",
   colors: {
     blue: [
-      '#E3F2FD',
-      '#BBDEFB',
-      '#89CFF0',
-      '#64B5F6',
-      '#42A5F5',
-      '#2196F3',
-      '#1E88E5',
-      '#1976D2',
-      '#1565C0',
-      '#0D47A1',
+      "#E3F2FD",
+      "#BBDEFB",
+      "#89CFF0",
+      "#64B5F6",
+      "#42A5F5",
+      "#2196F3",
+      "#1E88E5",
+      "#1976D2",
+      "#1565C0",
+      "#0D47A1",
     ],
   },
 });

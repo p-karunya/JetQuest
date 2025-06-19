@@ -1,11 +1,33 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
-import { TextInput, Textarea, Button, Paper, Title, Text, Container, Box, NumberInput, Select, Stack, Notification, Group } from '@mantine/core';
-import { motion } from 'framer-motion';
-import { Building2, MapPin, Trophy, Clock, Target, Check, X } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
+import { useState, useCallback } from "react";
+import {
+  TextInput,
+  Textarea,
+  Button,
+  Paper,
+  Title,
+  Text,
+  Container,
+  Box,
+  NumberInput,
+  Select,
+  Stack,
+  Notification,
+  Group,
+} from "@mantine/core";
+import { motion } from "framer-motion";
+import {
+  Building2,
+  MapPin,
+  Trophy,
+  Clock,
+  Target,
+  Check,
+  X,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import Header from "@/components/Header";
 
 export default function BusinessPage() {
   const [loading, setLoading] = useState(false);
@@ -23,27 +45,31 @@ export default function BusinessPage() {
     const data = Object.fromEntries(formData.entries());
 
     try {
-      const response = await fetch('/api/submit-business', {
-        method: 'POST',
+      const response = await fetch("/api/submit-business", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           ...data,
           estimatedTime: Number(data.estimatedTime),
-          points: Number(data.points)
+          points: Number(data.points),
         }),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to submit challenge');
+        throw new Error(result.error || "Failed to submit challenge");
       }
 
       setSubmitted(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred while submitting the challenge');
+      setError(
+        err instanceof Error
+          ? err.message
+          : "An error occurred while submitting the challenge",
+      );
     } finally {
       setLoading(false);
     }
@@ -69,7 +95,9 @@ export default function BusinessPage() {
             >
               <Paper p="xl" radius="lg" className="bg-white text-center">
                 <Check size={48} className="text-green-600 mx-auto mb-4" />
-                <Title order={2} className="mb-4">Thank You for Your Submission!</Title>
+                <Title order={2} className="mb-4">
+                  Thank You for Your Submission!
+                </Title>
                 <Text c="dimmed" mb="lg">
                   We'll review your challenge proposal and get back to you soon.
                 </Text>
@@ -82,7 +110,7 @@ export default function BusinessPage() {
                   </Button>
                   <Button
                     variant="light"
-                    onClick={() => router.push('/dashboard')}
+                    onClick={() => router.push("/dashboard")}
                     className="text-blue-600 hover:bg-blue-50"
                   >
                     Return to Dashboard
@@ -122,9 +150,12 @@ export default function BusinessPage() {
             <Paper p="xl" radius="lg" className="bg-white">
               <div className="text-center mb-6">
                 <Building2 size={48} className="text-blue-600 mx-auto mb-4" />
-                <Title order={2} className="mb-2">Add Your Business Challenge</Title>
+                <Title order={2} className="mb-2">
+                  Add Your Business Challenge
+                </Title>
                 <Text c="dimmed">
-                  Partner with us to create exciting challenges for our users at your location
+                  Partner with us to create exciting challenges for our users at
+                  your location
                 </Text>
               </div>
 
@@ -134,14 +165,14 @@ export default function BusinessPage() {
                     <Building2 size={20} className="text-blue-600" />
                     Business Information
                   </Title>
-                  
+
                   <TextInput
                     name="businessName"
                     label="Business Name"
                     placeholder="Your business name"
                     required
                   />
-                  
+
                   <TextInput
                     name="contactName"
                     label="Contact Name"
@@ -157,7 +188,7 @@ export default function BusinessPage() {
                       placeholder="your@email.com"
                       required
                     />
-                    
+
                     <TextInput
                       name="phone"
                       label="Phone Number"
@@ -192,10 +223,10 @@ export default function BusinessPage() {
                       label="Category"
                       required
                       data={[
-                        { value: 'adventure', label: 'Adventure' },
-                        { value: 'cultural', label: 'Cultural' },
-                        { value: 'food', label: 'Food & Drink' },
-                        { value: 'nature', label: 'Nature' },
+                        { value: "adventure", label: "Adventure" },
+                        { value: "cultural", label: "Cultural" },
+                        { value: "food", label: "Food & Drink" },
+                        { value: "nature", label: "Nature" },
                       ]}
                     />
 
@@ -204,10 +235,10 @@ export default function BusinessPage() {
                       label="Difficulty Level"
                       required
                       data={[
-                        { value: 'Easy', label: 'Easy (100 points)' },
-                        { value: 'Medium', label: 'Medium (200 points)' },
-                        { value: 'Hard', label: 'Hard (300 points)' },
-                        { value: 'Expert', label: 'Expert (400 points)' },
+                        { value: "Easy", label: "Easy (100 points)" },
+                        { value: "Medium", label: "Medium (200 points)" },
+                        { value: "Hard", label: "Hard (300 points)" },
+                        { value: "Expert", label: "Expert (400 points)" },
                       ]}
                     />
                   </div>
@@ -261,7 +292,7 @@ export default function BusinessPage() {
                   <Group justify="flex-end">
                     <Button
                       variant="light"
-                      onClick={() => router.push('/dashboard')}
+                      onClick={() => router.push("/dashboard")}
                       size="lg"
                       className="text-blue-600 hover:bg-blue-50"
                     >
