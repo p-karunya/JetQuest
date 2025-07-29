@@ -1,10 +1,11 @@
 'use client';
 
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Group, Title, Button, Container, Box, Stack } from '@mantine/core';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapIcon, Trophy, Layout, ChevronRight } from 'lucide-react';
-import { useState, useEffect, useCallback, useLayoutEffect } from 'react';
+import { MapIcon, Trophy, Layout, ChevronRight, Menu } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
 
 const cities = [
   {
@@ -46,28 +47,23 @@ const cities = [
 
 
 export default function Home() {
-  let CityImage;
   const router = useRouter();
   const [currentCityIndex, setCurrentCityIndex] = useState(0);
-  const [isImageLoading, setIsImageLoading] = useState(true);
-  const [preloadedImages, setPreloadedImages] = useState<string[]>([]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const preloadNextImage = useCallback((nextIndex: number) => {
     const img = new Image();
     img.src = cities[nextIndex].image;
-    setPreloadedImages(prev => [...prev, img.src]);
   }, []);
 
   const updateCityIndex = useCallback(() => {
     const nextIndex = (currentCityIndex + 1) % cities.length;
     setCurrentCityIndex(nextIndex);
-    setIsImageLoading(true);
 
     // Preload the next image in sequence
     const futureIndex = (nextIndex + 1) % cities.length;
     preloadNextImage(futureIndex);
   }, [currentCityIndex, preloadNextImage]);
-
 
   useEffect(() => {
     const interval = setInterval(updateCityIndex, 3000);
@@ -76,12 +72,11 @@ export default function Home() {
 
   const currentCity = cities[currentCityIndex];
 
-  CityImage = (
+  const CityImage = (
     <img
       src={currentCity.image}
       alt={`${currentCity.name} - ${currentCity.landmark}`}
       className="object-cover w-full h-full"
-      onLoad={() => setIsImageLoading(false)}
       style={{
         width: '100%',
         transition: 'opacity 0.5s ease-in-out'
@@ -91,7 +86,7 @@ export default function Home() {
 
   return (
     <Box className="min-h-screen hero-background">
-      <header className="bg-white border-b border-gray-200 shadow-sm">
+      <header className="bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-lg sticky top-0 z-50">
         <Container size="xl">
           <Group h={100} px="md" justify="space-between" className="nav-container">
             <Group>
@@ -107,16 +102,18 @@ export default function Home() {
               >
                 <MapIcon className="text-blue-600" size={40} />
               </motion.div>
-              <Title order={1} size={42} className="text-blue-600">
+              <Title order={1} size={42} className="text-blue-600 hidden sm:block">
                 JetQuest
               </Title>
             </Group>
-            <Group>
+            
+            {/* Desktop Navigation */}
+            <Group gap="xs" className="hidden md:flex">
               <Button
                 variant="subtle"
                 leftSection={<Trophy size={18} />}
                 onClick={() => router.push('/login')}
-                className="text-blue-600 hover:bg-blue-50"
+                className="text-blue-600 hover:bg-blue-50 bg-white/80 backdrop-blur-sm border border-blue-200"
                 size="lg"
               >
                 Leaderboard
@@ -125,7 +122,7 @@ export default function Home() {
                 variant="subtle"
                 leftSection={<Layout size={18} />}
                 onClick={() => router.push('/login')}
-                className="text-blue-600 hover:bg-blue-50"
+                className="text-blue-600 hover:bg-blue-50 bg-white/80 backdrop-blur-sm border border-blue-200"
                 size="lg"
               >
                 Dashboard
@@ -133,17 +130,76 @@ export default function Home() {
               <Button
                 variant="filled"
                 onClick={() => router.push('/login')}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
                 size="lg"
               >
                 Sign In
               </Button>
             </Group>
+
+            {/* Mobile Navigation */}
+            <Group className="md:hidden">
+              <Button
+                variant="filled"
+                onClick={() => router.push('/login')}
+                className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
+                size="md"
+              >
+                Sign In
+              </Button>
+              <Button
+                variant="subtle"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="text-blue-600 hover:bg-blue-50 bg-white/80 backdrop-blur-sm border border-blue-200 p-2"
+                size="md"
+              >
+                <Menu size={20} />
+              </Button>
+            </Group>
           </Group>
+
+          {/* Mobile Menu Dropdown */}
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="md:hidden bg-white/95 backdrop-blur-sm border-t border-gray-200 py-4 px-md"
+            >
+              <Stack gap="xs">
+                <Button
+                  variant="subtle"
+                  leftSection={<Trophy size={18} />}
+                  onClick={() => {
+                    router.push('/login');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="text-blue-600 hover:bg-blue-50 bg-white/80 backdrop-blur-sm border border-blue-200 justify-start"
+                  size="md"
+                  fullWidth
+                >
+                  Leaderboard
+                </Button>
+                <Button
+                  variant="subtle"
+                  leftSection={<Layout size={18} />}
+                  onClick={() => {
+                    router.push('/login');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="text-blue-600 hover:bg-blue-50 bg-white/80 backdrop-blur-sm border border-blue-200 justify-start"
+                  size="md"
+                  fullWidth
+                >
+                  Dashboard
+                </Button>
+              </Stack>
+            </motion.div>
+          )}
         </Container>
       </header>
 
-      <main className="flex items-center justify-center min-h-[calc(100vh-100px)] w-100wh">
+      <main className="flex items-center justify-center min-h-[calc(100vh-100px)] w-full px-4">
         <Container size="xl">
           <Stack align="center" gap={32}>
             <motion.div
@@ -152,11 +208,11 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center relative z-10 mt-8"
             >
-              <Title className="text-8xl sm:text-[12rem] font-bold text-white leading-tight mb-16 discover-text">
+              <Title className="text-6xl sm:text-8xl lg:text-[12rem] font-bold text-white leading-tight mb-8 sm:mb-16 discover-text">
                 Discover
               </Title>
 
-              <div className="h-32 sm:h-48 relative mb-3">
+              <div className="h-24 sm:h-32 lg:h-48 relative mb-3">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentCity.name}
@@ -164,7 +220,7 @@ export default function Home() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ duration: 0.5 }}
-                    className="text-8xl sm:text-[10rem] city-gradient font-bold"
+                    className="text-6xl sm:text-8xl lg:text-[10rem] city-gradient font-bold"
                   >
                     {currentCity.name}
                   </motion.div>
@@ -191,7 +247,7 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="w-[60vw] max-w-5xl aspect-[16/9] relative rounded-2xl overflow-hidden shadow-2xl mb-8 h-full"
+              className="w-full md:w-[60vw] max-w-5xl aspect-[16/9] relative rounded-2xl overflow-hidden shadow-2xl mb-8 h-full"
             >
               <AnimatePresence mode="wait">
                 <motion.div
@@ -206,12 +262,12 @@ export default function Home() {
                   {CityImage}
 
                   <div className="absolute inset-0 bg-gradient-to-t from-blue-900/50 to-transparent" />
-                  <div className="absolute bottom-8 left-8 right-8 text-white">
+                  <div className="absolute bottom-4 sm:bottom-8 left-4 sm:left-8 right-4 sm:right-8 text-white">
                     <motion.h2
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.3 }}
-                      className="text-3xl font-bold mb-2"
+                      className="text-xl sm:text-3xl font-bold mb-2"
                     >
                       {currentCity.landmark}
                     </motion.h2>
@@ -219,7 +275,7 @@ export default function Home() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.4 }}
-                      className="text-lg text-white/90"
+                      className="text-sm sm:text-lg text-white/90"
                     >
                       Explore the wonders of {currentCity.name}
                     </motion.p>
