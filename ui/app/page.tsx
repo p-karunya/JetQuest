@@ -164,7 +164,7 @@ export default function Home() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="md:hidden bg-white/95 backdrop-blur-sm border-t border-gray-200 py-4 px-md"
+              className="md:hidden bg-white/95 backdrop-blur-sm border-t border-gray-200 py-4 px-4"
             >
               <Stack gap="xs">
                 <Button
