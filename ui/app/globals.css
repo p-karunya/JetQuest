@@ -24,12 +24,18 @@ body {
 
 .explore-button {
   background: var(--primary-blue);
-  padding: 2rem 4rem;
+  padding: 1.5rem 3rem;
   border-radius: 1rem;
   position: relative;
   overflow: hidden;
   border: 2px solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
+}
+
+@media (min-width: 640px) {
+  .explore-button {
+    padding: 2rem 4rem;
+  }
 }
 
 .explore-button:hover {
